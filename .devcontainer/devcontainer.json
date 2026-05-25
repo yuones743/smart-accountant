@@ -1,0 +1,9 @@
+{
+  "name": "Flutter",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "postCreateCommand": "git clone https://github.com/flutter/flutter.git -b stable --depth 1 /workspaces/flutter && echo 'export PATH=\"/workspaces/flutter/bin:$PATH\"' >> ~/.bashrc",
+  "waitFor": "postCreateCommand"
+}
