@@ -10,57 +10,47 @@ import 'screens/dashboard_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  String? errorMessage;
-
   try {
     await Supabase.initialize(
       url: AppConfig.supabaseUrl,
       anonKey: AppConfig.supabaseAnonKey,
     );
   } catch (e) {
-    errorMessage = 'Supabase init error: $e';
+    runApp(ErrorScreen(message: 'Supabase error: $e'));
+    return;
   }
 
   Database? db;
-  if (errorMessage == null) {
-    try {
-      db = await LocalDB.init();
-    } catch (e) {
-      errorMessage = 'Database init error: $e';
-    }
+  try {
+    db = await LocalDB.init();
+  } catch (e) {
+    runApp(ErrorScreen(message: 'Database error: $e'));
+    return;
   }
 
-  if (db != null && errorMessage == null) {
-    try {
-      await LicenseManager.init(db);
-    } catch (e) {
-      errorMessage = 'LicenseManager init error: $e';
-    }
+  try {
+    await LicenseManager.init(db);
+  } catch (e) {
+    runApp(ErrorScreen(message: 'License error: $e'));
+    return;
   }
 
-  runApp(SmartApp(db: db, errorMessage: errorMessage));
+  runApp(SmartApp(db: db));
 }
 
 class SmartApp extends StatelessWidget {
-  final Database? db;
-  final String? errorMessage;
-
-  const SmartApp({required this.db, required this.errorMessage, super.key});
+  final Database db;
+  const SmartApp({required this.db, super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: AppConfig.appName,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-        fontFamily: 'Cairo',
-      ),
-      home: errorMessage != null
-          ? ErrorScreen(message: errorMessage!)
-          : LicenseManager.isDemoActive
-              ? DashboardScreen(db: db!)
-              : LoginScreen(db: db!),
+      theme: ThemeData(primarySwatch: Colors.teal, fontFamily: 'Cairo'),
+      home: LicenseManager.isDemoActive
+          ? DashboardScreen(db: db)
+          : LoginScreen(db: db),
     );
   }
 }
@@ -81,7 +71,7 @@ class ErrorScreen extends StatelessWidget {
               const Icon(Icons.error, size: 64, color: Colors.red),
               const SizedBox(height: 20),
               const Text(
-                'حدث خطأ أثناء بدء التشغيل',
+                'حدث خطأ',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
