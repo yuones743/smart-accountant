@@ -1,144 +1,124 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/app_config.dart';
-import '../services/auth_service.dart';
-import 'dashboard_screen.dart';
+import 'settings_screen.dart';
 
-class LoginScreen extends StatefulWidget {
+class DashboardScreen extends StatelessWidget {
   final Database db;
-  const LoginScreen({required this.db, super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final _phoneController = TextEditingController();
-  final _otpController = TextEditingController();
-  final _authService = AuthService();
-  bool _isLoading = false;
-  bool _otpSent = false;
-
-  Future<void> _sendOtp() async {
-    final phone = _phoneController.text.trim();
-    if (phone.isEmpty) {
-      _showError('يرجى إدخال رقم الهاتف');
-      return;
-    }
-
-    setState(() => _isLoading = true);
-    final success = await _authService.sendOtp(phone);
-    setState(() {
-      _isLoading = false;
-      if (success) _otpSent = true;
-    });
-
-    if (!success) {
-      _showError('فشل إرسال رمز التحقق. حاول مجددًا.');
-    }
-  }
-
-  Future<void> _verifyOtp() async {
-    final otp = _otpController.text.trim();
-    if (otp.isEmpty) {
-      _showError('يرجى إدخال رمز التحقق');
-      return;
-    }
-
-    setState(() => _isLoading = true);
-    final phone = _phoneController.text.trim();
-    final success = await _authService.verifyOtp(phone, otp);
-    setState(() => _isLoading = false);
-
-    if (success) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => DashboardScreen(db: widget.db)),
-      );
-    } else {
-      _showError('رمز التحقق غير صحيح. حاول مجددًا.');
-    }
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
-  }
+  const DashboardScreen({required this.db, super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.calculate, size: 80, color: Colors.teal),
-              const SizedBox(height: 20),
-              Text(
-                AppConfig.appName,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+      appBar: AppBar(
+        title: const Text('لوحة القيادة'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => SettingsScreen(db: db),
                 ),
-              ),
-              const SizedBox(height: 40),
-              if (!_otpSent) ...[
-                TextField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
-                    labelText: 'رقم الهاتف',
-                    prefixText: '+',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _sendOtp,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50),
-                  ),
-                  child: Text(_isLoading ? 'جاري الإرسال...' : 'إرسال رمز التحقق'),
-                ),
-              ] else ...[
-                TextField(
-                  controller: _otpController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'رمز التحقق',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _verifyOtp,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50),
-                  ),
-                  child: Text(_isLoading ? 'جاري التحقق...' : 'تسجيل الدخول'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() => _otpSent = false);
-                    _otpController.clear();
-                  },
-                  child: const Text('تغيير رقم الهاتف'),
-                ),
-              ],
-            ],
+              );
+            },
           ),
+        ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: const BoxDecoration(color: Colors.teal),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const Icon(Icons.store, size: 40, color: Colors.white),
+                  const SizedBox(height: 8),
+                  Text(
+                    AppConfig.appName,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.point_of_sale),
+              title: const Text('نقطة البيع'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('قيد الإنشاء - قريبًا')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.shopping_cart),
+              title: const Text('المشتريات'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('قيد الإنشاء - قريبًا')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.people),
+              title: const Text('العملاء'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('قيد الإنشاء - قريبًا')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.bar_chart),
+              title: const Text('التقارير'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('قيد الإنشاء - قريبًا')),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('الإعدادات'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => SettingsScreen(db: db),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      body: const Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check_circle, size: 64, color: Colors.teal),
+            SizedBox(height: 16),
+            Text(
+              'مرحباً بك في المحاسب الذكي!',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text('النسخة التجريبية مفعّلة'),
+          ],
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _phoneController.dispose();
-    _otpController.dispose();
-    super.dispose();
   }
 }
