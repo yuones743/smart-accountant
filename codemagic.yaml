@@ -1,0 +1,14 @@
+workflows:
+  smart-accountant-workflow:
+    name: Smart Accountant
+    environment:
+      flutter: stable
+    scripts:
+      - name: Recreate Android platform
+        script: flutter create --platforms=android .
+      - name: Get packages
+        script: flutter pub get
+      - name: Build APK
+        script: flutter build apk --debug
+    artifacts:
+      - build/app/outputs/flutter-apk/app-debug.apk
