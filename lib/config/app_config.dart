@@ -13,29 +13,30 @@ class AppConfig {
   static const String appNameEn = 'Smart Accountant';
 
   // ===== الاشتراك والدفع =====
-  static const int trialDays = 14; // مدة التجربة المجانية بالأيام
-  static const int dryMonths = 3;  // الأشهر الجافة قبل الحذف
-  static const int demoResetDays = 10; // إعادة تعيين الديمو كل 10 أيام
+  static const int trialDays = 14;
+  static const int dryMonths = 3;
+  static const int demoMonths = 4;
+  static const int demoResetDays = 10;
   static const String usdtWalletAddress = 'YOUR_USDT_WALLET';
   static const String shamCashNumber = 'YOUR_SHAM_NUMBER';
   static const String supportWhatsApp = 'https://wa.me/YOUR_NUMBER';
 
   // ===== باقات الاشتراك =====
   static const Map<int, double> planPrices = {
-    1: 5.0,   // شهري
-    3: 13.0,  // 3 أشهر
-    6: 24.0,  // 6 أشهر
-    12: 42.0, // 12 شهر
-    24: 72.0, // 24 شهر
+    1: 5.0,
+    3: 13.0,
+    6: 24.0,
+    12: 42.0,
+    24: 72.0,
   };
 
   // ===== سياسة الفواتير =====
-  static const int editGraceHours = 4; // فترة السماح لتعديل الفاتورة
+  static const int editGraceHours = 4;
 
   // ===== Deep Link =====
   static const String deepLinkScheme = 'smartaccountant';
   static const String deepLinkHost = 'login-callback';
 
   // ===== إعدادات الأمان =====
-  static const int autoLogoutMinutes = 30; // تسجيل خروج تلقائي بعد 30 دقيقة
+  static const int autoLogoutMinutes = 30;
 }
