@@ -2,7 +2,7 @@ workflows:
   smart-accountant-workflow:
     name: Smart Accountant
     environment:
-      flutter: stable
+      flutter: 3.22.0
     scripts:
       - name: Get packages
         script: flutter pub get
