@@ -9,18 +9,43 @@ import 'screens/dashboard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Supabase.initialize(
-    url: AppConfig.supabaseUrl,
-    anonKey: AppConfig.supabaseAnonKey,
-  );
-  final db = await LocalDB.init();
-  await LicenseManager.init(db);
-  runApp(SmartApp(db: db));
+
+  String? errorMessage;
+
+  try {
+    await Supabase.initialize(
+      url: AppConfig.supabaseUrl,
+      anonKey: AppConfig.supabaseAnonKey,
+    );
+  } catch (e) {
+    errorMessage = 'Supabase init error: $e';
+  }
+
+  Database? db;
+  if (errorMessage == null) {
+    try {
+      db = await LocalDB.init();
+    } catch (e) {
+      errorMessage = 'Database init error: $e';
+    }
+  }
+
+  if (db != null && errorMessage == null) {
+    try {
+      await LicenseManager.init(db);
+    } catch (e) {
+      errorMessage = 'LicenseManager init error: $e';
+    }
+  }
+
+  runApp(SmartApp(db: db, errorMessage: errorMessage));
 }
 
 class SmartApp extends StatelessWidget {
-  final Database db;
-  const SmartApp({required this.db, super.key});
+  final Database? db;
+  final String? errorMessage;
+
+  const SmartApp({required this.db, required this.errorMessage, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,11 +55,48 @@ class SmartApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.teal,
         fontFamily: 'Cairo',
-        platform: TargetPlatform.android,
       ),
-      home: LicenseManager.isDemoActive
-          ? DashboardScreen(db: db)
-          : LoginScreen(db: db),
+      home: errorMessage != null
+          ? ErrorScreen(message: errorMessage!)
+          : LicenseManager.isDemoActive
+              ? DashboardScreen(db: db!)
+              : LoginScreen(db: db!),
+    );
+  }
+}
+
+class ErrorScreen extends StatelessWidget {
+  final String message;
+  const ErrorScreen({required this.message, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error, size: 64, color: Colors.red),
+              const SizedBox(height: 20),
+              const Text(
+                'حدث خطأ أثناء بدء التشغيل',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: Colors.grey[200],
+                child: Text(
+                  message,
+                  style: const TextStyle(fontSize: 14, fontFamily: 'monospace'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
