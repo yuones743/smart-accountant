@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'core/money.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,15 +9,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // اختبار بسيط: هل تستطيع النواة تحويل نص إلى مبلغ؟
-    final testMoney = Money.parse("100.50", c: Currency.sar);
-
     return MaterialApp(
+      title: 'اختبار',
       home: Scaffold(
-        body: Center(
+        appBar: AppBar(
+          title: const Text('تطبيق اختباري'),
+        ),
+        body: const Center(
           child: Text(
-            testMoney.fmt(),
-            style: const TextStyle(fontSize: 40),
+            'مرحباً بالعالم!',
+            style: TextStyle(fontSize: 30),
           ),
         ),
       ),
