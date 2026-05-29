@@ -14,8 +14,8 @@ jobs:
         with:
           flutter-version: '3.22.0'
       - run: flutter pub get
-      - run: flutter build apk --debug --no-enable-impeller --target-platform android-arm,android-arm64
+      - run: flutter build apk --release --no-shrink --target-platform android-arm,android-arm64
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
