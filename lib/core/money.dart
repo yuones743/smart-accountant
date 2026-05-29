@@ -40,11 +40,11 @@ final class Money {
     return Money._(Decimal.fromInt(m) / Decimal.fromInt(10).pow(c.scale), c);
   }
   
-  static const zero = Money._(Decimal.zero, Currency.sar);
+  static final zero = Money._(Decimal.zero, Currency.sar);
   factory Money.zeroCurrency(Currency c) => Money._(Decimal.zero, c);
   
   Currency get ccy => _currency;
-  int get minor => (_amount * Decimal.fromInt(10).pow(_currency.scale)).round();
+  int get minor => (_amount * Decimal.fromInt(10).pow(_currency.scale)).truncate();
   bool get isZero => _amount == Decimal.zero;
   
   Money operator +(Money o) { _same(o); return Money._(_amount + o._amount, _currency); }
@@ -60,7 +60,7 @@ final class Money {
   Map<String, dynamic> toMap() => {'amount': _amount.toString(), 'currency': _currency.code};
   
   factory Money.fromMap(Map<String, dynamic> m) {
-    return Money.parse(m['amount'], currency: Currency.byCode(m['currency']));
+    return Money.parse(m['amount'], c: Currency.byCode(m['currency']));
   }
   
   void _same(Money o) { if (_currency != o._currency) throw Exception('Currency mismatch'); }
