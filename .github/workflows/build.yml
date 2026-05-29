@@ -12,10 +12,10 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.6'
+          flutter-version: '3.19.0'  # نستخدم إصدارًا ثابتًا ومجربًا
       - run: flutter pub get
-      - run: flutter build apk --debug
+      - run: flutter build apk --release --no-shrink --target-platform android-arm,android-arm64
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
