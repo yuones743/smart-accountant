@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // اختبار بسيط: هل تستطيع النواة تحويل نص إلى مبلغ؟
-    final testMoney = Money.parse("100.50", currency: Currency.sar);
+    final testMoney = Money.parse("100.50", c: Currency.sar);
 
     return MaterialApp(
       home: Scaffold(
