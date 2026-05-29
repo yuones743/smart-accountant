@@ -37,20 +37,32 @@ final class Money {
   }
   
   factory Money.fromMinor(int m, Currency c) {
-    return Money._(Decimal.fromInt(m).divide(Decimal.fromInt(10).pow(c.scale)), c);
+    // تقسيم آمن: نحول Decimal إلى سلسلة لحساب القسمة بدقة
+    final divisor = _tenPower(c.scale);
+    return Money._(Decimal.parse((Decimal.fromInt(m) / divisor).toString()), c);
   }
   
   static final zero = Money._(Decimal.zero, Currency.sar);
   factory Money.zeroCurrency(Currency c) => Money._(Decimal.zero, c);
   
   Currency get ccy => _currency;
-  int get minor => (_amount * Decimal.fromInt(10).pow(_currency.scale)).floor();
+  
+  int get minor {
+    final factor = _tenPower(_currency.scale);
+    // نستخدم toStringAsFixed ثم int.parse لاستخراج القيمة الصحيحة
+    return int.parse((_amount * factor).toStringAsFixed(0));
+  }
+  
   bool get isZero => _amount == Decimal.zero;
   
   Money operator +(Money o) { _same(o); return Money._(_amount + o._amount, _currency); }
   Money operator -(Money o) { _same(o); return Money._(_amount - o._amount, _currency); }
   Money mul(Decimal f) => Money._(_amount * f, _currency);
-  Money pct(double p) => mul(Decimal.parse(p.toString()).divide(Decimal.fromInt(100)));
+  
+  Money pct(double p) {
+    final percent = Decimal.parse((p / 100.0).toStringAsFixed(10));
+    return Money._(_amount * percent, _currency);
+  }
   
   int compareTo(Money o) { _same(o); return _amount.compareTo(o._amount); }
   bool operator ==(Object o) => o is Money && o._amount == _amount && o._currency == _currency;
@@ -64,4 +76,13 @@ final class Money {
   }
   
   void _same(Money o) { if (_currency != o._currency) throw Exception('Currency mismatch'); }
+}
+
+/// دالة مساعدة لحساب 10^scale بطريقة متوافقة مع الإصدارات القديمة
+Decimal _tenPower(int scale) {
+  Decimal result = Decimal.one;
+  for (int i = 0; i < scale; i++) {
+    result = result * Decimal.fromInt(10);
+  }
+  return result;
 }
